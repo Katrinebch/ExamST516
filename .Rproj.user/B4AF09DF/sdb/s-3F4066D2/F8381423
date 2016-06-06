@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "#' @export\n#' @title Chi square probability\n#' @usage chi.probability(x, df, n)\n#' @keywords bootstrap\n#' @description This function applies the Monte Carlo method to generate a chi-squared distribution.\n#' @param x the point where we want to calculate the probability.\n#' @param df degree of freedom\n#' @param n number of random numbers for each variable.\n#' @author Katrine Eriksen and Katrine Bach \\cr\n#' Department of mathematics and computer science (IMADA) \\cr\n#' University of Southern Denmark \\cr\n#' \\email{kater13@student.sdu.dk} and \\email{kabac13@student.sdu.dk}\n#' @examples chi.probability(10,4,100)\n\n\nchi.probability <-function(x, df, n){\n  set.seed(13)\n  summ <- 0\n  Y <- 0\n  for (i in 1:df) {\n    Y <- rnorm(n, mean=0, sd=1)\n    Yianden <- Y^2\n    summ <- summ + Yianden\n  }\n  blup <- ecdf(summ)\n  plot(blup)\n  p <-1-blup(x)\n  return(p)\n\n}\n",
+    "created" : 1464960831980.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2887362686",
+    "id" : "F8381423",
+    "lastKnownWriteTime" : 1464975019,
+    "last_content_update" : 1464975019660,
+    "path" : "~/Google Drev/ST505/ST516/ExamST516/R/chi.probability.R",
+    "project_path" : "R/chi.probability.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

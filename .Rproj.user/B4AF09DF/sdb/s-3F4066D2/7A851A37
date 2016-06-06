@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "densiplot <- function(x,n=500, method=\"naive\", from= min(x)-(sd(x)/3), to=max(x)+(sd(x)/3)){\n  happy<-c()\n  for (d in seq(from,to,length.out = n)) {\n    happy1<-densi(x,d=d,method=method)\n    happy<-c(happy,happy1)\n  }\n  plot(happy)\n}\nTask5.1(faithful$eruptions, method=\"kernel\")\n",
+    "created" : 1465218075225.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1420741973",
+    "id" : "7A851A37",
+    "lastKnownWriteTime" : 1465219492,
+    "last_content_update" : 1465219492812,
+    "path" : "~/Google Drev/ST505/ST516/Projekt/Task5.1.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
