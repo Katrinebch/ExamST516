@@ -14,6 +14,19 @@
 
 
 chi.probability <-function(x, df, n){
+  #WARNING/STOPS
+  if (!is.numeric(x)){stop("x must be numeric")}
+  if (x<1){warning("Generates wrong chi-probability")}
+  
+  if(df==0){stop("The degrees of freedom must be greater than zero")}
+  if (df<0){stop("The degrees of freedom must be positive")}
+  if (!is.numeric(df)){stop("The degrees of freedom must be numeric")}
+  
+  if(n==0){warning("n must be positive")}
+  if (n<0){stop("Impossible to generate a amount of variables")}
+  if (!is.numeric(n)){stop("n must be numeric")}
+  
+  
   set.seed(13)
   summ <- 0
   Y <- 0

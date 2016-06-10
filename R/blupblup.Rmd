@@ -1,9 +1,20 @@
 ---
 title: 'ST516: Computational Statistics Exam (Part A)'
 author: "Katrine Eriksen and Katrine Bach"
-date: "30 maj 2016"
+date: "10 juni 2016"
 output: pdf_document
+bibliography: bibliography.bib
 ---
+
+```{r}
+#install.packages("devtools")
+#install.packages("roxygen2")
+#library(devtools)
+
+#install_github("Katrinebch/ExamST516")
+#library(ExamST516)
+
+```
 
 
 #Task 1
@@ -12,13 +23,15 @@ In this task we want to compare the effect of daily sport activity on the semest
 \item The correlation between the variables of interest.
 \item The bootstrap estimate of correlation, 
 \item The bootstrap estimation of the standard error, 
-\item The Bias
+\item The bias
 \item The 95\% considence interval. 
 \end{enumerate}
-To begin with we will explain the theory behind the concepts that is needed. 
+To begin with, we will explain the theory behind the concepts that is needed. 
 
 ###Correlation:
-$E[X]$ is the expected value of the random variable $X$, this value is the weighted average of the possible values of $X$. The value of $E[X]$ does not say anything about the variantion of the these values. One way to measure this variance is to consider the average value of the squares of the difference between $X$ and $E[X]$. 
+This section is based on [@ross2].
+
+$E[X]$ is the expected value of the random variable $X$, this value is the weighted average of the possible values of $X$. The value of $E[X]$ does not say anything about the variation of the these values. One way to measure this variance is to consider the average value of the squares of the difference between $X$ and $E[X]$. 
 
 **Definition:** If $X$ is a random variable with mean $\mu$, then the variance of $X$, denoted by $Var(X)$, is defined by 
 $$Var(X)=E[(X-\mu)^2]$$
@@ -34,19 +47,21 @@ $$Cor(X,Y)=\frac{Cov(X,Y)}{\sqrt{Var(X)Var(Y)}}$$
 
 
 ###Boostrap:
-The Boostrapping Technique was developed by Efron in 1979 and was inspired by the Jacknife method which is a method especially useful for variance and bias estimation. The boostrap technique are a nonparametric Monte Carlo method that estimate the population distribution by resampling from an observed sample. The resampling method allows us to estimate population charachteristics and make inference about them. We use this method when the populations mean $\mu$ is unknown. 
+This chapter is based on [@ross8].
+
+The Boostrapping Technique was developed by Efron in 1979 and was inspired by the Jacknife method which is a method especially useful for variance and bias estimation. The boostrap technique is a nonparametric Monte Carlo method that estimate the population distribution by resampling from an observed sample. The resampling method allows us to estimate population charachteristics and make inference about them. We use this method when the populations mean $\mu$ is unknown. 
 
 Suppose that $X_1,\dots,X_n$ are independent random variables that have a common distribution $F$. We are interested in using the variables to estimate some parameter $\theta(F)$ which could be the mean of $F$. Suppose further that an estimator of $\theta(F)$, where this estimator is called $g(X_1,\dots,X_n)$, has been proposed. In order to judge its worth as an estimator of $\theta(F)$ we are interested in estimationg its mean square error. 
 $$MSE(F)\equiv E_F[(g(X_1,\dots X_n)-\theta(F))^2]$$
 
 As an immediate estimator of the above $MSE$ which is $S^2/n$ when $\theta=E[X_i]$ and $g(X_1,\dots,X_n)=\bar{X}$, it is not that obvious how it can be estimated otherwise. We therefore present the boostrap technique for estimation the mean square error.
-We first note that is the distribution function $F$ were known it would be possible to ompute the mean square error. Based on the observed data points $X_i$ it is possible to estimate the underlying distribution function $F$ by a so called empirical distribution function $F_e$
+We first note that if the distribution function $F$ were known it would be possible to compute the mean square error. Based on the observed data points $X_i$ it is possible to estimate the underlying distribution function $F$ by a so called empirical distribution function $F_e$
 $$F_e(x)=\frac{\text{number of i:}X_i\leq x}{n}$$
 
-If the empirical distribution function $F_e$ is close to $F$ which is should be in the case where $n$ is large. Then $\theta(F_e)$ probably be close to $\theta(F)$ when it is assumed that $\theta$ is a continous function of the distribution. The $MSE(F)$ should approximately be equal to 
+If the empirical distribution function $F_e$ is close to $F$ which it should be in the case where $n$ is large. Then $\theta(F_e)$ probably be close to $\theta(F)$ when it is assumed that $\theta$ is a continous function of the distribution. The $MSE(F)$ should approximately be equal to 
 $$MSE(F_e)=E_{F_e}[(g(X_1,\dots,X_n)-\theta(F_e))^2]$$
 
-In this expression the $X_i$ are to be regarded as being independent random variables having the distribution function $F_e$. This $MSE(F_e)$ is called the *Boostrap approximation to the mean square erroe $MSE(F)$*.
+In this expression the $X_i$ are to be regarded as being independent random variables having the distribution function $F_e$. This $MSE(F_e)$ is called the *Boostrap approximation to the mean square error $MSE(F)$*.
 
 For the boostrap technique we can estimate the standard error by the following 
 $$\hat{se}=\sqrt{\frac{1}{N-1}\sum_{i=1}^{n}(\hat{x_i}-\bar{\hat{x}})^2}$$
@@ -69,13 +84,17 @@ y <- data$Grades
 
 bootstrap <- function(n,x,y){
   #Warnings and stop
-  if (n<0){stop("n must be bigger than zero")}
+  if(n<1){stop('n must be larger or equal to 1')}
+  if(!is.numeric(n)){stop("n must be numeric")}
+  if(length(x)<2 ){stop("x must be a single row vector")}
+  if(length(y)<2 ){stop("y must be a single row vector")}
+  if(length(x)!=length(y)){stop("x and y must have the same length")}
 
-  #Calculation of the correlation between the variables og interest.
+  #Calculation the correlation between the variables og interest.
   theta.hat <- cor(x,y)
 
   #Standard Error
-  set.seed(13)
+  set.seed(516)
   N <- nrow(data) # sample size (number of rows)
   storage <- numeric(n) #Store the variables
   for (i in 1:n) {
@@ -93,8 +112,6 @@ bootstrap <- function(n,x,y){
   alfa = 0.05
   plus <- theta.hat.boot + qnorm(1-(alfa/2))*se
   minus <- theta.hat.boot - qnorm(1-(alfa/2))*se
-  
-  #return the above culculations
   return(list("exact_corr"=theta.hat,"boot_corr"=theta.hat.boot, "se"=se, "bias"=bias, "confidence_interval"=c(plus, minus)))
 }
 
@@ -102,14 +119,14 @@ bootstrap <- function(n,x,y){
 bootstrap(10000, x, y)
 
 ```
-By using the R build-in function *cor* we found that the correlation between sport and grades are $cor(x,y)=0.6673$
+By using the R build-in function *cor* we found that the correlation between sport and grades are $cor(x,y)=0.6673$.
 
 From our function we see that the bootstrap estimate of correlation is $0.6754$. It is possible to see that the two values of correlation lies close to each other, hence the bootstrap method for estimating the correlation is valid. It should not be expected that these values are exactly the same, as the bootstrap method only approximate the correlation.
 
 The standard error of bootstrap estimation is found by using the formula from the theory. We get the standard error of the bootsrap estimation is $0.0698$.
 This value can be interpreted as a measure of how good the approximation is. If the value is low this indicates that the approximation fits the observed values. On the other hand if the standard error is large the approximated values fits the observed values poorly. From this our standard error indicates that the bootstrap method approximate the values well, but there is still room for improvement. 
 
-The bias estimates the difference between the expected values of the approximation and the exact value. For a good approximation this implies that the diffence between the two values must be small. Our value is $0.0081$ which indicates that the estimator is close to being unbiased. 
+The bias estimates the difference between the expected values of the approximation and the exact value. For a good approximation this implies that the difference between the two values must be small. Our value is $0.0081$ which indicates that the estimator is close to being unbiased. 
 
 A confidence interval of 95% reflects a significance level at 0.05. When it is stated that we are 95% confident that the true value of the parameter is in our confidence interval, we express that 95% of the hypothetically observed confidence intervals will hold the true value of the parameter. 
 In our case we found that the 95% confidence interval is $0.53852490-0.8122820$ which implicates that if the parameter lies within this interval we are 95% confident that the paramter estimate is true, hence it can be accepted. Our bootstrap estimate is $0.0698$ which is in the confidence interval, hence the parameter can be accepted. 
@@ -121,15 +138,17 @@ In our case we found that the 95% confidence interval is $0.53852490-0.8122820$ 
 In this task we have to simulate two problems "Buffon's Needle Problem" and "Lazzarini's experiment". First we want to explain the idea of "Buffon's Needle Problem" and cover the theory we use. 
 
 ###Buffon's Needle Problem: 
-Buffon's needle problem is a question that was first posed in the 18 th century by Georges-Luis Leclerc. The problem was the following. 
+Buffon's needle problem is a question that was first posed in the 18th century by Georges-Luis Leclerc. The problem was the following. 
 Suppose we have an infinit floor with parallel lines and we let $d$ be the distance between the lines on the floor. If we then drop a needle onto the floor, what is the probability that the needle will lie across a line?
-For solving this problem let the needle have a length $l$ with $y$ being the distance from the lower end of the needle to the nearest gridline above it. Further more $\theta$ measures the smallest clockwise angle form the gridirection to the needle. 
+For solving this problem let the needle have a length $l$ with $y$ being the distance from the lower end of the needle to the nearest gridline above it. Further more $\theta$ measures the smallest clockwise angle form the grid direction to the needle. 
 In the case where $l\leq d$, then the probability that the needle is crossing a line on the floor is
 $$P(hit)=\frac{\int^{\pi}_0 l\sin\theta d\theta}{\pi d}=\frac{2l}{\pi d}\approx 0.6366$$
 The needle hits one of the gridlines if and only iff $y<l\sin\theta$
 
 
 ###Monte Carlo: 
+This section is based on [@ross3].
+
 Suppose we want to compute $\theta$ where 
 $$\theta=\int_0^1 g(x)dx$$
 To compute the value of $\theta$ then we can express $\theta$ as 
@@ -159,12 +178,12 @@ $$\sigma=\sqrt{E[(X-E[X])^2]}$$
 
 
 ###Standard Error:
-The standard error is calculated by the use of the standard deviation $\sigma$. It is usually estimated by the standard deviation divided bu the square root of the sample size.
+The standard error is calculated by the use of the standard deviation $\sigma$. It is usually estimated by the standard deviation divided by the square root of the sample size.
 $$\text{se} = \frac{\sigma}{\sqrt(n)}$$
 
 
 ###Lazzarini's experiment: 
-In 1901 the italian mathematician Mario Lazzarini perfomed "Buffon's Needle experiment". He tossed a needle $3408$ times and obtained the well-known estimate $\frac{355}{133}$ for $\pi$ which was accurate to the six significant digits. Lazzarini chose needles of a length $5/6$ of the width of the stripes. In this case he found that the probability that the needles will cross the line is $\frac{5}{3\pi}$
+In 1901 the italian mathematician Mario Lazzarini perfomed "Buffon's Needle experiment". He tossed a needle $3408$ times and obtained the well-known estimate $\frac{355}{133}$ for $\pi$ which was accurate to the six significant digits. Lazzarini chose needles of a length $5/6$ of the width of the stripes. In this case he found that the probability that the needles will cross the line is $\frac{5}{3\pi}$.
 
 
 In the first subtask we have to estimate the "Buffon's Needle experiment" using the Monte Carlo method and report the **P(hit)**. In addtion we have to compute and report the variance, standard deviation, standard error and the 95% confidence interval. This have we done in the following program.
@@ -183,7 +202,7 @@ for (i in 1:N) {
   theta <- (b-a)*U+a
   f <- l*sin(theta)
   integralet[i] <- sum((f/N))*(b-a) #the estiamtion
-  Phit<- integralet[i]/(pi*d)
+  Phit<- integralet[i]/(pi*d) #calculate phit by the formel given in the theory. 
   pie <- (2*l)/(Phit*d)
 }
 #Variance
@@ -213,37 +232,49 @@ In subtask 2 we should estimate **P(hit)** by performing "Buffon's Needle experi
 ```{r}
 #Opgave 2
 buffon <- function(N,l,d){
+  set.seed(520)
+  #warning and stop
+  if(l>d){warning("l must be smaller than or equal to d")}
+  if(!is.numeric(N)){stop("N must be a numeric")}
+  if(!is.numeric(l)){stop("l must be a numeric")}
+  if(!is.numeric(d)){stop("d must be a numeric")}
+  if(N<1){stop("N must be larger or equal to 1")}
+  if(d==0){warning("d should be bigger than zero")}
+  if (d<1){stop("You cannot have a negative distance")}
+  if (l==0){warning("It seems illogical to have a zero length")}
+  if (l<0){stop("Not possible to have a negative length")}
+  
   a <- 0
   b <- pi
   U <- runif(N)
   theta <- (b-a)*U+a
   f <- l*sin(theta)
-  integralet <- sum((f/N))*(b-a) #the estiamtion
-  Phit<- integralet/(pi*d)
-  pie <- (2*l)/(Phit*d)
+  integralet <- sum((f/N))*(b-a) #Calculate the uppet part of the integral.
+  Phit<- integralet/(pi*d) #calculate phit by the formel given in the theory. 
+  pie <- (2*l)/(Phit*d) #estimates pi
   return(pie)
 }
+
 buffon(10000,1,1)
 ```
 
-Here we see that the estimated pi we get is pretty close to the actuel pi which is $3.14159265$. Obviously our estimate could be better, but we think it is an acceptable estimating of $\pi$.
+Here we see that the estimated $\pi$ we get is pretty close to the actual $\pi$ which is $3.14159265$. Obviously our estimate could be better, but we think it is an acceptable estimating of $\pi$.
 
-In subtask 3 we have to repeat subtask 2 for values ranging from 1 to 10000 in intervals of 10. To do this we make a for-loop so we can se what the estimation for $pi$ is in every 10th interval. 
+In subtask 3 we have to repeat subtask 2 for values ranging from 1 to 10000 in intervals of 10. To do this we make a for-loop so we can see what the estimation for $\pi$ is in every 10th interval. 
 
 ```{r}
 #Opgave 3
 estpi <- 0
 for (i in seq(1, 10000, 10)) {
-  estpi[i]<-buffon(i,1,1)
-  #print(Task2(i,1,1))
+  estpi[i]<-buffon(i,1,1) #estimates pi by using our function buffon
 }
 plot(estpi)
 
 ```
 
-From this plot we see that when N goes to infity then our estimation of $\pi$ goes towards the exact $pi$
+It can be seen that for a small value of *N* the estimate of $\pi$ is very poorly, while these values shows a big diversity. From this plot we see that when N goes to infity then our estimation of $\pi$ goes towards the exact $\pi$.
 
-The last subtask is about Lazzarini's famous estimation of $pi$ using "Buffon's Needle experiment", which is accurate to the 6th decimal. We have to replicate his experiment a 10000 times where $N=3408$, $l=2.5$ and $d=3$, and compare them to our own results. 
+The last subtask is about Lazzarini's famous estimation of $\pi$ using "Buffon's Needle experiment", which is accurate to the 6th decimal. We have to replicate his experiment a 10000 times where $N=3408$, $l=2.5$ and $d=3$, and compare them to our own results. 
 
 ```{r}
 #Opgave 4
@@ -255,10 +286,10 @@ plot(lazzarini)
 
 ```
 
-*Skal omskrives*
-From the plot we se that the Lazzarini estimation of $\pi$ is centered in the interval $3.10-3.17$. We get a plot that is more detailed by the Lazzarini estimation of $\pi$ than our own, this implies that the Lazzarini experiment is better than our estimation of $\pi$. In our model we have estimations that varies from $2.7-4.4$ but most of them is centered in the interval $3.0-3.3$ which is not as good at the Lazzarini's experiment. We can therefore conclude that because Lazzarini have chosen $N=3408$, $l=2.5$ and $d=3$, his estimation of $\pi$ is much better than our estimation. 
 
-We think Lazzarini's choice of N is a little inapproriate because of the fact that it seems to specific. It would be more reliable if there was some notes about the devitation of this number, because seems as if Lazzerina only chose this value because he aldready knew that he should get something like $\frac{355}{113}$ for running the eksperiment multiple times. 
+From the plot we see that the Lazzarini estimation of $\pi$ is centered in the interval $3.10-3.17$. We get a plot that is more detailed by the Lazzarini estimation of $\pi$ than our own. This implies that the Lazzarini experiment is better than our estimation of $\pi$. In our model we have estimations that varies from $2.7-4.4$ but most of them is centered in the interval $3.0-3.3$ which is not as good at the Lazzarini's experiment. We can therefore conclude that because Lazzarini have chosen $N=3408$, $l=2.5$ and $d=3$, his estimation of $\pi$ is much better than our estimation. 
+
+We think Lazzarini's choice of N is a little inapproriate because of the fact that it seems to specific. It would be more reliable because seems as if Lazzerini only chose this value because he already knew that he should get something like $\frac{355}{113}$ for running the eksperiment multiple times. 
 
 
 
@@ -270,14 +301,16 @@ We think Lazzarini's choice of N is a little inapproriate because of the fact th
 A company creates gum for children. These gums comes with a photo of a soccerplayer. Gitte has purchased 301 cards.
 
 
-This task is about whether we reject or accept a p-value. Again we first start by explaining the teory we use, which is $chi^2$-distribution and Goodness of fit. 
+This task is about whether we reject or accept a p-value. Again we first start by explaining the teory we use, which is $\chi^2$-distribution and Goodness of fit test. 
 
 #####$\chi^2$-distribution:
-In the case where $Y_i$  have normal independent distribution with mean $0$ and variance $1$ then $\chi^2$ distribution can be defined as 
+In the case where $Y_i$ are independt, standard normal vairables with mean $0$ and variance $1$ then $\chi^2$ distribution can be defined as 
 $$\chi^2=\sum_{i=1}^{df} Y_i^2$$ 
-where $df$ is the *degree of freedom*. The *degree og freedom* is the number of parameters which may be independently varied minus $1$
+where $df$ is the *degrees of freedom*. The *degree og freedom* is the number of parameters which may be independently varied minus $1$[@ross11]
 
 #####Goodness of fit: 
+This section is based on [@ross11]
+
 The idea of the Pearson chi-square test is to compare the observed sample points with the expected sample points. The hypothesis $H_0$ is rejected if the observed and expected numbers are too different.
 
 We let $N_j$ denote the observed number of sample points in $A_j$
@@ -296,18 +329,31 @@ In the first subtask we have to write a function that applies the Monte Carlo me
 
 ```{r}
 chi.probability <-function(x, df, n){
-set.seed(13)
-summ <- 0
-Y <- 0
-  for (i in 1:df) {
-    Y <- rnorm(n, mean=0, sd=1) 
-    Yianden <- Y^2
-    summ <- summ + Yianden
+  #WARNING/STOPS
+  if (!is.numeric(x)){stop("x must be numeric")}
+  if (x<1){warning("Generates wrong chi-probability")}
+  
+  if(df==0){stop("The degrees of freedom must be greater than zero")}
+  if (df<0){stop("The degrees of freedom must be positive")}
+  if (!is.numeric(df)){stop("The degrees of freedom must be numeric")}
+  
+  if(n==0){warning("n must be positive")}
+  if (n<0){stop("Impossible to generate a amount of variables")}
+  if (!is.numeric(n)){stop("n must be numeric")}
+  
+  
+  set.seed(13)
+  summ <- 0
+  Y <- 0
+  for (i in 1:df) { # makes a for loop that goes from 1 to degree of freedom. 
+    Y <- rnorm(n, mean=0, sd=1)
+    Yianden <- Y^2 #Sets Y-square
+    summ <- summ + Yianden # makes the sum of all the Yianden.
   }
-blup <- ecdf(summ)
-plot(blup)
-p <-1-blup(x)
-return(p)
+  blup <- ecdf(summ)
+  plot(blup)
+  p <-1-blup(x) #calculates the p-value. 
+  return(p)
 
 }
 chi.probability(10,4,100)
@@ -317,25 +363,32 @@ chi.probability(10,4,100)
 In the second subtask we have to write a function that takes two variables (x,p). This function should return the $\chi^2$ goodness of fit value.
 ```{r}
 GoodnessOfFit <- function(x,p=c(rep(1/length(x),length(x)))){
+  #Warning/stops
+  if(sum(p)!=1){stop("p must sum to 1 and be a vector of probabilities")}
+  if(any(p<0)){stop("you can't have a negative probability")}
+  if(length(x)!=length(p)){stop("x and p must have the same length")}
+    
   set.seed(13)
   n<-301
   Exp<-n*p
-  Pearson<-((x-Exp)^2/Exp)
-  GOF<-sum(Pearson,na.rm = FALSE)
+  Pearson<-((x-Exp)^2/Exp) #calculates the sum for pearson chi-square
+  GOF<-sum(Pearson,na.rm = FALSE) # Sum the pearson
   return(GOF)
 }
 
 ```
 
-In this function we have made the precautions that the amount of observable values cannot be equal to zero, while this would imply that the probabilities within the p-vector was unfined. 
+In this function we have made the precautions that the if sum of p is not equal to 1 then the function should stop. This is because the sum of all probabilities must be one. We also check whether p is bigger than zero or not. A probabilitiy cannot be negative, and therefore we have to have this precaution. Also if the length of x is not equal to p then the function should stop because x and p must have the same values.
+
+In this function we have made the precautions that the amount of observable values cannot be equal to zero, while this would imply that the probabilities within the p-vector was undefined. 
 The length of the vector containing the observed values cannot be zero, since it is not possible to have a negative amount of observations. This also counts for the p-vector. 
-One of the probabilities within the p-vector can be zero because then the *Pearson* step will be unfinied. 
+One of the probabilities within the p-vector can not be zero because then the *Pearson* step will be undefined. 
 
 For the fourth subtask the company aclaims that all cards are equally likely to get in any shop. For validating this we make the following $H_0$ together with $H_1$ :
 
-$H_0$: It is equally likely to get each of the different cards, this implies that the probability for getting each card is $1/20$. Because the company claims that all cards are equally likely to get in any shop, since there a 20 different cards this implicates that the probability for getting each card is $1/20$
+$H_0$: It is equally likely to get each of the different cards. This implies that the probability for getting each card is $1/20$. 
 
-$H_1$: It is not equally likely to get each of the different cards. This is just the opposite of our nul-hypothesis, so the H1-hypothesis implies that the probability for getting each card is not $1/20$.
+$H_1$: It is not equally likely to get each of the different cards. This is just the opposite of our null-hypothesis, so the H1-hypothesis implies that the probability for getting each card is not $1/20$.
 
 ```{r}
 URL <- "https://raw.githubusercontent.com/haghish/ST516/master/data/soccer.txt"
@@ -354,11 +407,14 @@ For subtask five we want to show the difference between the $\chi^2$ provided by
 It can be seen that these two p-values are not the same. Eventhough these values are not the same, they both reach the same conclusion that the $H_0$ hypothesis must be rejected. The difference is that the build-in function within *R* calculates the intregral numerically, while our function only makes an approximation of the integral using the Monte Carlo method.
 
 
-The $P(\chi^2>x$ can be used to obtain the p-value, because this calculates the upper tail of the distribution. 
+The $P(\chi^2>x)$ can be used to obtain the p-value, because this calculates the upper tail of the distribution. 
 
 Since the model is a chi-squared Goodness of fit test the chi-square distribution is used to evaluate the observed data. The chi-squared distribution is used to find the lower tail, which is the sum of probability until x. The probability that $\chi^2>x$ is then 1 minus the lower tail. 
 
-The p-value indicates how good the observed data fits the distribution. If the p-value is low this indicate that the obsereved data is unlikeli according to the null-hypothesis, which implies that the null-hypothesis must be wrong, hence it is rejected. 
+The p-value is the exact level of significance, which can also be stated as the probability of rejecting the $H_0$ in the case where it is actually true. Hence
+the p-value indicates how good the observed data fits the distribution. A high p-value indicate that we can have more confidence in the null hypothesis. If the p-value is low this indicate that the obsereved data is unlikely according to the null-hypothesis, which implies that the null-hypothesis must be wrong, hence it is rejected [@hyp].
+
+
 
 
 

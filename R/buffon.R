@@ -16,6 +16,18 @@
 
 
 buffon <- function(N,l,d){
+  
+  #warning and stop
+  if(l>d){warning("l must be smaller than or equal to d")}
+  if(!is.numeric(N)){stop("N must be a numeric")}
+  if(!is.numeric(l)){stop("l must be a numeric")}
+  if(!is.numeric(d)){stop("d must be a numeric")}
+  if(N<1){stop("N must be larger or equal to 1")}
+  if(d==0){warning("d should be bigger than zero")}
+  if (d<1){stop("You cannot have a negative distance")}
+  if (l==0){warning("It seems illogical to have a zero length")}
+  if (l<0){stop("Not possible to have a negative length")}
+  
   a <- 0
   b <- pi
   U <- runif(N)

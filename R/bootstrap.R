@@ -21,7 +21,11 @@
 
 bootstrap <- function(n,x,y){
   #Warnings and stop
-  if (n<0){stop("n must be bigger than zero")}
+  if(n<1){stop('n must be larger or equal to 1')}
+  if(!is.numeric(n)){stop("n must be numeric")}
+  if(length(x)<2 ){stop("x must be a single row vector")}
+  if(length(y)<2 ){stop("y must be a single row vector")}
+  if(length(x)!=length(y)){stop("x and y must have the same length")}
 
   #Calculation the correlation between the variables og interest.
   theta.hat <- cor(x,y)

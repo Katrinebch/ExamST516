@@ -7,7 +7,7 @@
 GoodnessOfFit(x,p)
 }
 \arguments{
-\item{x}{Snak med cille bille}
+\item{x}{observed values}
 
 \item{p}{the expected probability for all outcomes}
 }
